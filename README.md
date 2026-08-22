@@ -60,40 +60,54 @@ system default and never ask what the hardware is.
 ## Compared to
 
 Moonlight has no microphone passthrough and, as of August 2026, still does not:
-the Sunshine pull requests that would have added it —
-[#4900](https://github.com/LizardByte/Sunshine/pull/4900),
+the three Sunshine pull requests that would have added it
+([#4900](https://github.com/LizardByte/Sunshine/pull/4900),
 [#4901](https://github.com/LizardByte/Sunshine/pull/4901),
-[#4078](https://github.com/LizardByte/Sunshine/pull/4078) — are all closed
-unmerged. So everyone solves it out of band. These are what people are already
-using, and where each one is the better choice.
+[#4078](https://github.com/LizardByte/Sunshine/pull/4078)) are all closed
+unmerged. So everyone solves it out of band, and there is already a field of
+tools that do.
 
-**[VBAN](https://vb-audio.com/Voicemeeter/vban.htm) — VoiceMeeter and VBAN
-Talkie.** VB-Audio's own network audio protocol, and the answer most often given
-in those threads. Free, mature, and if both machines are Windows it is hard to
-beat. The macOS sender is a separate paid App Store app, the routing lives in
-VoiceMeeter rather than in the thing sending the audio, and none of it is open
-source.
+| | micbridge | [VBAN](https://vb-audio.com/Voicemeeter/vban.htm) | [AudioRelay](https://audiorelay.net/) | [EchoWarp](https://github.com/lHumaNl/EchoWarp) |
+|---|---|---|---|---|
+| Licence | Apache-2.0 | closed | closed | MIT |
+| macOS as the *sender* | native `.app` | paid App Store app | yes | yes |
+| Interface | window and CLI | VoiceMeeter | window | TUI and CLI |
+| Tray or menu bar, always on top, autostart | yes | no | no | no |
+| Buffer, drift, loss, underruns, once a second | yes | no | no | diagnostics screen |
+| On the wire | uncompressed PCM | uncompressed PCM | compressed | Opus over WebRTC |
+| Encryption | **none** | none | unstated | AES, DTLS/SRTP |
+| Duplex, broadcast, conference | no | yes | no | yes |
+| Crosses Tailscale or a routed subnet | yes | yes | yes | yes |
+| Signed binaries | **no** | yes | yes | unstated |
+| Age | days | years | years | years |
+| Virtual cable needed on a Windows receiver | yes | yes | yes | yes |
 
-**[AudioRelay](https://audiorelay.net/).** Free, closed source, cross-platform,
-aimed mainly at using a phone as a speaker or a microphone; it does the
-machine-to-machine case too. Easier to get running than VBAN. You cannot read
-what it does.
+**Where micbridge wins.** It is the only one of these built as a *window* first.
+A level meter with a latching clip badge, a menu bar item on macOS and a tray
+icon on Windows, an on-top toggle that survives a fullscreen game, and an
+autostart entry that comes up already receiving. It sends uncompressed PCM
+rather than Opus, which is worth something when the source is an audio interface
+rather than a headset. And the per-second line of buffer fill, measured clock
+drift, loss and underruns means a degrading link is something you read rather
+than something you slowly notice.
 
-**[EchoWarp](https://github.com/lHumaNl/EchoWarp).** The nearest neighbour — MIT,
-Go, actively maintained, and solving the same problem. If you want a small tool
-with no window, look at it first.
+**Where it does not.** There is no encryption at all, the binaries are unsigned,
+it does one thing in one direction, and it is days old. EchoWarp in particular
+does more, encrypts, and has been doing it for longer. If you want the mature
+option, take it: this one earns its place on the interface and the numbers, not
+on breadth.
 
-**USB/IP.** Passes the interface through as a device, so the far machine sees a
-real Behringer with its own control panel and ASIO. It does not cross Tailscale
-or a routed subnet, and it needs a driver on the receiving side. `docs/design.md`
-has the longer version of why this project went the other way.
+**USB/IP** is the other approach, and deliberately not the one taken here. It
+passes the interface through as a device, so the far machine sees a real
+Behringer with its own control panel and ASIO. It does not cross Tailscale or a
+routed subnet, and it needs a driver on the receiving side. `docs/design.md` has
+the longer version.
 
-Where micbridge is the better pick: macOS as a first-class *sender*, one binary
-in both directions on all three platforms, and a level meter plus a per-second
-line of buffer, drift, loss and underrun numbers — so "is it working" is
-something you read rather than guess. Where it is not: this is v1.0.1, the
-binaries are unsigned, and the [Unverified](#unverified) section below is a real
-list rather than a formality.
+One thing none of these escape: **a Windows receiver needs a virtual audio
+cable.** That is not a choice any of them made. Windows has no user-space way to
+create a recording device, so something signed has to provide the endpoint.
+[Windows setup](#windows-setup-and-why-it-needs-a-virtual-audio-cable) covers the
+four steps and the two settings people get wrong afterwards.
 
 ## Install
 
