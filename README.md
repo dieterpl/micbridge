@@ -6,7 +6,7 @@
 
 **Use a microphone plugged into one computer on a different computer.**
 
-[![Release](https://img.shields.io/github/v/release/dieterpl/micbridge?style=flat-square&color=3B9EEA)](https://github.com/dieterpl/micbridge/releases/latest)
+[![Release](https://img.shields.io/badge/release-v1.0.0-3B9EEA?style=flat-square)](https://github.com/dieterpl/micbridge/releases/latest)
 [![Licence](https://img.shields.io/badge/licence-Apache--2.0-3B9EEA?style=flat-square)](#licence)
 [![Rust](https://img.shields.io/badge/rust-1.92%2B-3B9EEA?style=flat-square)](rust-toolchain.toml)
 [![Platforms](https://img.shields.io/badge/macOS%20%C2%B7%20Windows%20%C2%B7%20Linux-3B9EEA?style=flat-square)](https://github.com/dieterpl/micbridge/releases/latest)
@@ -64,9 +64,17 @@ Each archive holds a window (`micbridge-gui`) and a command line (`micbridge`).
 
 | Platform | File |
 |---|---|
-| macOS, Apple Silicon or Intel | `micbridge-macos-universal-app.zip` |
+| macOS, Apple Silicon or Intel | `micbridge-macos-universal-app.zip` — `MicBridge.app` |
+| macOS, bare binaries | `micbridge-macos-universal.tar.gz` |
 | Windows 10/11 | `micbridge-windows-x86_64.zip` |
 | Linux x86-64, glibc 2.35+ | `micbridge-linux-x86_64.tar.gz` |
+
+`SHA256SUMS` is published beside them: `sha256sum -c SHA256SUMS` on Linux,
+`shasum -a 256 -c SHA256SUMS` on macOS. [CHANGELOG.md](CHANGELOG.md) says what is
+in each release.
+
+Prefer the `.app` on macOS — the reason is under
+[Setup on the sending machine](#setup-on-the-sending-machine).
 
 **The binaries are not signed** — that needs a paid Apple Developer account and an
 EV certificate. macOS will refuse the first launch: right-click the app and choose
@@ -105,11 +113,12 @@ Four steps, once:
 If the level meter on the receiving window moves, it is working. The rest of this
 section is the why, and the two settings people get wrong afterwards.
 
-**Windows has no user-space way to create a microphone.** A recording endpoint is
-a kernel-mode audio driver, and loading one on an ordinary machine requires WHQL
-signing — an EV certificate plus Microsoft attestation. That is why every tool in
-this space (VoiceMeeter, OBS, every soundboard) tells you to install a cable
-rather than shipping its own driver, and why micbridge does the same.
+A recording endpoint on Windows is a kernel-mode audio driver, and loading one on
+an ordinary machine requires WHQL signing — an EV certificate plus Microsoft
+attestation. That is why every tool in this space (VoiceMeeter, OBS, every
+soundboard) tells you to install a cable rather than shipping its own driver, and
+why micbridge does the same. Nothing here is a driver: every line of it is
+user-mode.
 
 A **virtual audio cable** is that driver, already written and signed by someone
 else. It installs two endpoints wired together internally:
@@ -358,9 +367,9 @@ Stated plainly rather than left to be discovered:
   is untested on a Linux machine. The Windows binary has been run; beyond that,
   every behavioural check so far is Mac-to-Mac over loopback, so treat WASAPI
   timing and VB-CABLE routing as lightly exercised rather than proven.
-* **The screenshots are macOS only.** The same binary draws both windows, but
-  nothing here has been photographed on Windows or Linux because nothing here has
-  been *run* there.
+* **The screenshots are macOS only.** The same binary draws both windows, and the
+  layout is not platform-specific, but nothing has been photographed on Windows or
+  Linux.
 
   Seven Windows-specific defects were found by review and fixed before this got
   anywhere near Windows: a channel count WASAPI would reject after the handshake
