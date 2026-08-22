@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Security issue
+    url: https://github.com/dieterpl/micbridge/security/advisories/new
+    about: Report privately. Note that the protocol is unauthenticated by design — see SECURITY.md.

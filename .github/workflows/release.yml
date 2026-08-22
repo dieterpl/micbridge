@@ -1,0 +1,167 @@
+name: Release
+
+# Tag-driven only. There is no CI workflow in this repository by choice, which
+# makes this the one place the code is compiled for all three platforms — so it
+# runs the tests too, rather than only producing artifacts. A tag that cannot
+# pass its own test suite should not become a release.
+on:
+  push:
+    tags: ["v*"]
+  # Runnable on demand without tagging, to check the workflow itself before
+  # committing a version number to a tag that cannot be moved.
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  macos:
+    name: macOS (universal)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: rustup show && rustup target add aarch64-apple-darwin x86_64-apple-darwin
+
+      - name: Test
+        run: cargo test --workspace --all-features
+
+      - name: Build both architectures
+        run: |
+          cargo build --release --target aarch64-apple-darwin
+          cargo build --release --target x86_64-apple-darwin
+
+      # One download that runs on an M-series and an Intel Mac alike. Two
+      # separate files would only invite half the users to take the wrong one.
+      - name: Join into universal binaries
+        run: |
+          mkdir -p target/universal
+          for bin in micbridge micbridge-gui; do
+            lipo -create -output "target/universal/$bin" \
+              "target/aarch64-apple-darwin/release/$bin" \
+              "target/x86_64-apple-darwin/release/$bin"
+            lipo -info "target/universal/$bin"
+          done
+
+      - name: Bundle the app
+        run: scripts/bundle-macos.sh target/universal
+
+      - name: Package
+        run: |
+          set -euo pipefail
+          mkdir -p out
+          cp README.md LICENSE-APACHE THIRD-PARTY.md dist/
+          # ditto rather than zip: it preserves the bundle structure and the
+          # ad-hoc signature, which a plain zip can corrupt.
+          ditto -c -k --keepParent dist/MicBridge.app out/micbridge-macos-universal-app.zip
+          tar -C target/universal -czf out/micbridge-macos-universal.tar.gz micbridge micbridge-gui
+      - uses: actions/upload-artifact@v4
+        with:
+          name: macos
+          path: out/*
+
+  windows:
+    name: Windows (x86-64)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: rustup show
+
+      - name: Test
+        run: cargo test --workspace --all-features
+
+      - name: Build
+        run: cargo build --release
+
+      - name: Package
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out staging
+          cp target/release/micbridge.exe target/release/micbridge-gui.exe staging/
+          cp README.md LICENSE-APACHE THIRD-PARTY.md staging/
+          cd staging && 7z a -tzip ../out/micbridge-windows-x86_64.zip . >/dev/null
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows
+          path: out/*
+
+  linux:
+    name: Linux (x86-64)
+    # 22.04 rather than -latest on purpose: the binary links whatever glibc the
+    # runner has, so building on the newest Ubuntu would refuse to start on
+    # anything older. Building on the oldest supported runner is the whole
+    # portability strategy.
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - run: rustup show
+
+      - name: Install audio and windowing headers
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libasound2-dev libx11-dev libxkbcommon-dev \
+            libgl1-mesa-dev libxcursor-dev libxi-dev libxrandr-dev
+
+      - name: Test
+        run: cargo test --workspace --all-features
+
+      - name: Build
+        run: cargo build --release
+
+      - name: Package
+        run: |
+          set -euo pipefail
+          mkdir -p out staging
+          cp target/release/micbridge target/release/micbridge-gui staging/
+          cp README.md LICENSE-APACHE THIRD-PARTY.md staging/
+          tar -C staging -czf out/micbridge-linux-x86_64.tar.gz .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux
+          path: out/*
+
+  publish:
+    name: Publish
+    needs: [macos, windows, linux]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Collect and checksum
+        run: |
+          set -euo pipefail
+          mkdir -p release
+          find artifacts -type f -exec cp {} release/ \;
+          cd release && sha256sum * > SHA256SUMS && cat SHA256SUMS
+
+      # The notes are the CHANGELOG's section for this tag, so there is one place
+      # to write them and no static file to go stale a release later.
+      - name: Take the release notes from the changelog
+        run: |
+          set -euo pipefail
+          awk -v tag="${GITHUB_REF_NAME#v}" '
+            $0 ~ "^## \\[" tag "\\]" { on = 1; next }
+            on && /^## \[/ { exit }
+            on { print }
+          ' CHANGELOG.md > notes.md
+          if [ ! -s notes.md ]; then
+            echo "See CHANGELOG.md for what changed." > notes.md
+          fi
+          cat notes.md
+
+      # gh is preinstalled on the runner, so publishing adds no third-party
+      # action to the supply chain.
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${GITHUB_REF_NAME}" release/* \
+            --title "${GITHUB_REF_NAME}" \
+            --notes-file notes.md

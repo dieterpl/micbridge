@@ -1,0 +1,29 @@
+name: Feature request
+description: Suggest something
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: What are you trying to do that micbridge makes hard or impossible?
+    validations: { required: true }
+
+  - type: textarea
+    id: idea
+    attributes:
+      label: What you have in mind
+    validations: { required: true }
+
+  - type: markdown
+    attributes:
+      value: |
+        Two constraints worth knowing, because they have already shaped the design:
+
+        * **Dependencies on the Windows path stay pure Rust.** It is what lets the
+          Windows binary cross-build from a Mac with no C toolchain.
+        * **Nothing new in the audio callbacks** — no allocation, no locks, no
+          syscalls. `CONTRIBUTING.md` has the details.
+
+        A codec is welcome and has a place to go: `WireSampleFormat` is negotiated,
+        so a new variant is backward compatible. Measure the latency it adds.

@@ -1,0 +1,24 @@
+[package]
+name = "micbridge-engine"
+description = "Runs a send or receive session on a background thread and exposes its live state. Drives both the CLI and the GUI."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+micbridge-protocol.workspace = true
+micbridge-core.workspace = true
+micbridge-audio.workspace = true
+anyhow.workspace = true
+if-addrs.workspace = true
+tracing.workspace = true
+
+# Windows only, and pure Rust over windows-sys, so it does not disturb the
+# no-C-toolchain cross-build. Used for one registry value under HKCU\...\Run.
+[target.'cfg(windows)'.dependencies]
+winreg.workspace = true

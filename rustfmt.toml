@@ -1,0 +1,4 @@
+# More compact than default rustfmt: struct literals and call chains stay on one
+# line up to `max_width`. Set from the first commit so `cargo fmt --all --check`
+# in CI is green from day one rather than becoming a tree-wide reformat later.
+use_small_heuristics = "Max"

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <title>micbridge</title>
+  <rect width="64" height="64" rx="15" fill="#000000" opacity="0.14"/>
+  <g fill="#000000">
+    <rect x="11" y="38" width="6.5" height="13" rx="3.25"/>
+    <rect x="21" y="30" width="6.5" height="21" rx="3.25"/>
+    <rect x="28.75" y="22" width="6.5" height="29" rx="3.25"/>
+    <rect x="36.5" y="30" width="6.5" height="21" rx="3.25"/>
+    <rect x="46.5" y="38" width="6.5" height="13" rx="3.25"/>
+  </g>
+</svg>

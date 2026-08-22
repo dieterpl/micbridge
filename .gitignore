@@ -1,0 +1,84 @@
+# ── Build output ─────────────────────────────────────────────────────
+/target
+/dist
+# Intermediate for iconutil. The .icns it produces is committed, because the
+# Linux and Windows release jobs have no iconutil to rebuild it with.
+/assets/*.iconset/
+**/*.rs.bk
+*.pending-snap
+
+# ── Captured audio ───────────────────────────────────────────────────
+# `micbridge recv --sink wav` and the latency harness both write here. Useful
+# locally, never worth committing.
+/captures/
+*.wav
+!testdata/*.wav
+
+# ── AI / agent working files ─────────────────────────────────────────
+# Instruction files, session state, and the scratch notes agents leave
+# behind. None of this belongs in a published repository.
+CLAUDE.md
+CLAUDE.local.md
+AGENTS.md
+AGENT.md
+GEMINI.md
+.cursorrules
+.cursor/
+.claude/
+.codex/
+.aider*
+.gemini/
+.windsurf/
+.github/copilot-instructions.md
+
+# Agent- and human-authored scratch notes. The docs that ship live in
+# docs/ under their own names; anything matching these patterns is local.
+NOTES.md
+TODO.md
+SCRATCH.md
+HANDOFF*.md
+PLAN*.md
+*-notes.md
+*_NOTES.md
+*-plan.md
+*_PLAN.md
+*-handoff.md
+*_HANDOFF.md
+*.local.md
+/notes/
+/scratch/
+/.notes/
+/private/
+
+# ── Local environment ────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+
+# ── Tooling scratch ──────────────────────────────────────────────────
+__pycache__/
+*.pyc
+
+# ── Editor / OS junk ─────────────────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
+!.vscode/extensions.json
+*.swp
+*.swo
+*~
+.zed/
+
+# ── Runtime / logs ───────────────────────────────────────────────────
+*.log
+/log/
+/logs/

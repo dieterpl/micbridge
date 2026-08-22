@@ -1,0 +1,67 @@
+<meta charset="utf-8">
+<style>
+  /* QuickLook lays this out in a 1024px viewport and scales the thumbnail up to
+     1280, so the page is authored at 1024 and every size is chosen for that.
+     It also runs no JavaScript and loads no web fonts: the meter below is static
+     markup and the system face is the design, not a fallback.
+
+     The card fills the whole square with its content vertically centred, so the
+     centred crop to 1280x640 lands on the content however the page is laid out. */
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{width:1024px;height:1024px;overflow:hidden}
+  .card{
+    width:1024px;height:1024px;
+    background:
+      radial-gradient(600px 420px at 76% 50%, rgba(59,158,234,.18), transparent 62%),
+      linear-gradient(150deg,#111C21 0%,#0F1518 55%,#0B1013 100%);
+    color:#DCE6EA;
+    font-family:-apple-system,"Helvetica Neue",Helvetica,Arial,sans-serif;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .inner{width:904px;display:flex;align-items:center;justify-content:space-between;gap:36px}
+
+  .top{display:flex;align-items:center;gap:18px;margin-bottom:20px}
+  h1{font-size:70px;line-height:.9;letter-spacing:-.03em;font-weight:700;color:#F2F8FC}
+  .sub{font-size:22px;line-height:1.36;color:#A9BDC6}
+  .sub b{color:#F2F8FC;font-weight:600}
+  .tags{display:flex;gap:8px;margin-top:22px}
+  .tag{
+    font-size:11px;letter-spacing:.15em;font-weight:600;color:#93AAB3;
+    border:1px solid #2F3E45;border-radius:999px;padding:5px 13px;
+    background:rgba(24,33,38,.72);
+  }
+  .flow{
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+    font-size:12.5px;line-height:2.0;color:#6E838C;white-space:pre;flex:0 0 auto;
+  }
+  .flow .k{color:#3B9EEA}
+  .flow .g{color:#46B87A}
+  .meter{display:flex;align-items:flex-end;gap:4px;height:42px;margin-top:28px;width:430px;opacity:.55}
+  .meter i{flex:1;background:#3B9EEA;border-radius:2px}
+</style>
+<div class="card"><div class="inner">
+  <div>
+    <div class="top">
+      <svg width="76" height="76" viewBox="0 0 64 64">
+        <rect width="64" height="64" rx="15" fill="#2E86D6"/>
+        <g fill="#F2F8FC">
+          <rect x="11" y="38" width="6.5" height="13" rx="3.25"/>
+          <rect x="21" y="30" width="6.5" height="21" rx="3.25"/>
+          <rect x="28.75" y="22" width="6.5" height="29" rx="3.25"/>
+          <rect x="36.5" y="30" width="6.5" height="21" rx="3.25"/>
+          <rect x="46.5" y="38" width="6.5" height="13" rx="3.25"/>
+        </g>
+      </svg>
+      <h1>micbridge</h1>
+    </div>
+    <div class="sub">Use a microphone plugged into<br><b>one computer</b> on a <b>different computer</b>.</div>
+    <div class="tags"><span class="tag">MACOS</span><span class="tag">WINDOWS</span><span class="tag">LINUX</span><span class="tag">RUST</span></div>
+    <div class="meter"><i style="height:3.0px"></i><i style="height:6.4px"></i><i style="height:11.6px"></i><i style="height:15.2px"></i><i style="height:16.1px"></i><i style="height:15.0px"></i><i style="height:13.4px"></i><i style="height:14.1px"></i><i style="height:15.8px"></i><i style="height:20.2px"></i><i style="height:24.6px"></i><i style="height:26.3px"></i><i style="height:23.9px"></i><i style="height:19.7px"></i><i style="height:28.9px"></i><i style="height:36.5px"></i><i style="height:39.5px"></i><i style="height:37.1px"></i><i style="height:30.5px"></i><i style="height:22.8px"></i><i style="height:24.5px"></i><i style="height:25.8px"></i><i style="height:23.2px"></i><i style="height:23.0px"></i><i style="height:25.5px"></i><i style="height:24.2px"></i><i style="height:22.1px"></i><i style="height:29.3px"></i><i style="height:35.5px"></i><i style="height:37.8px"></i><i style="height:34.7px"></i><i style="height:27.4px"></i><i style="height:18.5px"></i><i style="height:21.8px"></i><i style="height:23.8px"></i><i style="height:22.0px"></i><i style="height:17.8px"></i><i style="height:13.5px"></i><i style="height:11.6px"></i><i style="height:10.5px"></i><i style="height:11.0px"></i><i style="height:10.7px"></i><i style="height:7.9px"></i><i style="height:3.0px"></i></div>
+  </div>
+  <div class="flow"><span>audio interface</span>
+<span class="k">└─ capture 48 kHz</span>
+<span class="k">   └─ UDP ───────▶</span>
+<span class="k">      └─ jitter buffer</span>
+<span class="k">         └─ drift correct</span>
+<span class="g">            └─ game mic ✓</span></div>
+</div></div>

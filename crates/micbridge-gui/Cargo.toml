@@ -1,0 +1,78 @@
+[package]
+name = "micbridge-gui"
+description = "A small desktop window for micbridge. Same engine as the CLI, on both macOS and Windows."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+
+[[bin]]
+name = "micbridge-gui"
+path = "src/main.rs"
+
+[features]
+# A development aid, never in a release build: lets the window photograph itself
+# so the UI can be looked at on a machine that cannot grant Screen Recording
+# permission. See src/screenshot.rs.
+screenshot = []
+
+[lints]
+workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true
+
+[dependencies]
+micbridge-engine.workspace = true
+micbridge-audio.workspace = true
+micbridge-protocol.workspace = true
+anyhow.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+
+# `default-features = false` (set in the workspace) so the Linux windowing backends
+# and accesskit are not dragged in, and so the renderer is chosen here rather than
+# inherited.
+#
+# glow (OpenGL) rather than wgpu, and not for weight: **wgpu does not build at all**
+# in this version set. wgpu-hal 29 requires `gpu-allocator ^0.28` and `windows
+# ^0.62`, but the only 0.28 release of gpu-allocator depends on `windows` 0.54, so
+# the D3D12 types do not unify and the DX12 backend fails to compile — natively on
+# Windows as much as when cross-building. No pinning resolves it; the two constraints
+# are mutually exclusive.
+#
+# The cost is a real limitation, recorded in the README: glow does not degrade over
+# Windows Remote Desktop, it fails to start, because RDP exposes only Microsoft's
+# GDI generic OpenGL 1.1 driver (egui issues #2573, #3165). The answer there is the
+# CLI, which has no renderer at all.
+eframe = { workspace = true, features = ["glow", "default_fonts"] }
+
+# Linux needs a windowing backend named explicitly, because the workspace sets
+# `default-features = false` and the defaults are where x11 and wayland normally
+# come from. Cargo unions features across target sections, so this adds to the
+# entry above rather than replacing it.
+#
+# Note that a Linux build is *not* pure Rust: cpal reaches ALSA through a C
+# library, so libasound2-dev is required. That does not cost the property the
+# rule exists to protect — the Windows binary is still cross-built from macOS
+# with no C toolchain — because Linux is built natively on a Linux machine.
+[target.'cfg(target_os = "linux")'.dependencies]
+eframe = { workspace = true, features = ["glow", "default_fonts", "x11", "wayland"] }
+
+# A menu bar item on macOS and a notification-area icon on Windows, from the same
+# code. Restricted to those two targets on purpose: tray-icon is objc2 on macOS
+# and windows-sys on Windows — both pure Rust, so the Windows cross-build from a
+# Mac is unaffected — but on Linux it needs GTK and libayatana-appindicator, which
+# would drag a C dependency into a build that does not need one.
+[target.'cfg(any(target_os = "macos", target_os = "windows"))'.dependencies]
+tray-icon = "0.24"
+
+# The Windows executable icon, compiled into the binary by the resource compiler.
+# `cfg(windows)` on a build-dependency is evaluated against the *host*, which is
+# exactly right here: the Mac has no `rc.exe`, so it neither needs this crate nor
+# fetches it, and the cross-build is untouched. `toml` is off because the icon is
+# set in code rather than in `[package.metadata]`, which leaves `version_check` as
+# the only thing this pulls in. See build.rs.
+[target.'cfg(windows)'.build-dependencies]
+winresource = { version = "0.1", default-features = false }

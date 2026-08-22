@@ -1,0 +1,63 @@
+name: Bug report
+description: Something does not work
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before filing: the Windows and Linux binaries have never been run against
+        real hardware, so a problem there is expected rather than surprising — and
+        still worth reporting, with as much of the below as you can give.
+
+  - type: dropdown
+    id: role
+    attributes:
+      label: Which side misbehaves
+      options: ["Sender", "Receiver", "Both", "Not sure"]
+    validations: { required: true }
+
+  - type: input
+    id: platforms
+    attributes:
+      label: Platforms
+      description: Operating system on each end, and how they are connected.
+      placeholder: "macOS 15 (sender) -> Windows 11 (receiver), over Tailscale"
+    validations: { required: true }
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: "Output of `micbridge --version`, or the release you downloaded."
+    validations: { required: true }
+
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you expected, and what happened instead.
+    validations: { required: true }
+
+  - type: textarea
+    id: session
+    attributes:
+      label: The receiver's per-second line
+      description: |
+        The single most useful thing you can paste. It looks like:
+        `playing fill_ms=19.4 trim_ppm=-485 underruns=0 overruns=0 lost=0 late=0 packets=201`
+      render: text
+
+  - type: textarea
+    id: devices
+    attributes:
+      label: Output of `micbridge devices`
+      description: On the machine that misbehaves. Device naming is behind a good share of these.
+      render: text
+
+  - type: checkboxes
+    id: tone
+    attributes:
+      label: Narrowing it down
+      options:
+        - label: "I tried `--tone 1000`, which needs no capture device or microphone permission"
+        - label: "I tried the CLI as well as the window"

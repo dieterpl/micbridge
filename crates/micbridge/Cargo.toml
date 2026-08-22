@@ -1,0 +1,37 @@
+[package]
+name = "micbridge"
+description = "Streams a Mac audio input to a Windows host so a game there can use it as a microphone."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+default-run = "micbridge"
+
+[lints]
+workspace = true
+
+[[bin]]
+name = "micbridge"
+path = "src/main.rs"
+
+[dependencies]
+micbridge-protocol.workspace = true
+micbridge-engine.workspace = true
+micbridge-audio.workspace = true
+anyhow.workspace = true
+clap.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true
+
+# The Windows executable icon, compiled into the binary by the resource compiler.
+# `cfg(windows)` on a build-dependency is evaluated against the *host*, which is
+# exactly right here: the Mac has no `rc.exe`, so it neither needs this crate nor
+# fetches it, and the cross-build is untouched. `toml` is off because the icon is
+# set in code rather than in `[package.metadata]`, which leaves `version_check` as
+# the only thing this pulls in. See build.rs.
+[target.'cfg(windows)'.build-dependencies]
+winresource = { version = "0.1", default-features = false }

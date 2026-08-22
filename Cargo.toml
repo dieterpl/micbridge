@@ -1,0 +1,62 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/micbridge-protocol",
+    "crates/micbridge-core",
+    "crates/micbridge-audio",
+    "crates/micbridge-engine",
+    "crates/micbridge",
+    "crates/micbridge-gui",
+]
+
+[workspace.package]
+version = "1.0.0"
+edition = "2021"
+license = "Apache-2.0"
+# Raised from 1.80 when the GUI arrived: eframe sets the floor now.
+rust-version = "1.92"
+repository = "https://github.com/dieterpl/micbridge"
+homepage = "https://github.com/dieterpl/micbridge"
+authors = ["dieterpl"]
+readme = "README.md"
+keywords = ["audio", "microphone", "streaming", "virtual-audio-cable", "wasapi"]
+categories = ["multimedia::audio", "command-line-utilities"]
+
+[workspace.dependencies]
+micbridge-protocol = { path = "crates/micbridge-protocol" }
+micbridge-core = { path = "crates/micbridge-core" }
+micbridge-audio = { path = "crates/micbridge-audio" }
+micbridge-engine = { path = "crates/micbridge-engine" }
+
+anyhow = "1"
+thiserror = "2"
+serde = { version = "1", features = ["derive"] }
+rmp-serde = "1"
+clap = { version = "4", features = ["derive", "env"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+cpal = "0.15"
+# Interface enumeration, for sending a discovery probe out of every interface
+# rather than only the one the routing table picks for 255.255.255.255. Pure Rust
+# on both targets — libc bindings on Unix, windows-sys on Windows — so the
+# Windows cross-build from macOS is unaffected.
+if-addrs = "0.15"
+hound = "3"
+ringbuf = "0.4"
+# 0.35 rather than 0.36 on purpose: 0.36 raised its MSRV to rustc 1.95, which
+# would mean a Homebrew-installed Rust (1.94 at the time of writing) could no
+# longer build this repository at all. 0.35 needs 1.92, so both a Homebrew
+# toolchain and a rustup one work. `default-features = false` here so the
+# per-crate feature list is not silently ignored.
+eframe = { version = "0.35", default-features = false }
+winreg = "0.56"
+insta = "1"
+tempfile = "3"
+
+[workspace.lints.clippy]
+dbg_macro = "warn"
+todo = "warn"
+
+[profile.release]
+lto = "thin"
+strip = true

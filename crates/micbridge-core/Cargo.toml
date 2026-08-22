@@ -1,0 +1,16 @@
+[package]
+name = "micbridge-core"
+description = "Sequencing, jitter buffering, drift correction and resampling for micbridge. No I/O."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+micbridge-protocol.workspace = true
+ringbuf.workspace = true
+tracing.workspace = true
