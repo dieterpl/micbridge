@@ -542,6 +542,20 @@ impl Drop for App {
 }
 
 impl eframe::App for App {
+    /// The window background.
+    ///
+    /// eframe's default ignores the visuals it is handed and clears to a hardcoded
+    /// `rgba(12, 12, 12, 180)`. That is invisible under the dark palette — its `bg`
+    /// is `#0F1518`, a few points away — but `ui()` hands over a `Ui` with no
+    /// background of its own, so the clear colour *is* the window background, and
+    /// under the light palette it framed white cards in black.
+    ///
+    /// Filling the frame in `ui` instead would not do: that frame is inside the
+    /// scroll area, so it covers the content and not the empty space below it.
+    fn clear_color(&self, visuals: &egui::Visuals) -> [f32; 4] {
+        visuals.panel_fill.to_normalized_gamma_f32()
+    }
+
     /// eframe hands the app a `Ui` directly rather than a `Context`, so there is no
     /// panel to open here.
     fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {

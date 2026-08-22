@@ -6,7 +6,7 @@
 
 **Use a microphone plugged into one computer on a different computer.**
 
-[![Release](https://img.shields.io/badge/release-v1.0.0-3B9EEA?style=flat-square)](https://github.com/dieterpl/micbridge/releases/latest)
+[![Release](https://img.shields.io/badge/release-v1.0.1-3B9EEA?style=flat-square)](https://github.com/dieterpl/micbridge/releases/latest)
 [![Licence](https://img.shields.io/badge/licence-Apache--2.0-3B9EEA?style=flat-square)](#licence)
 [![Rust](https://img.shields.io/badge/rust-1.92%2B-3B9EEA?style=flat-square)](rust-toolchain.toml)
 [![Platforms](https://img.shields.io/badge/macOS%20%C2%B7%20Windows%20%C2%B7%20Linux-3B9EEA?style=flat-square)](https://github.com/dieterpl/micbridge/releases/latest)
@@ -57,6 +57,44 @@ system default and never ask what the hardware is.
 
 `docs/design.md` has the full reasoning, `docs/protocol.md` the wire format.
 
+## Compared to
+
+Moonlight has no microphone passthrough and, as of August 2026, still does not:
+the Sunshine pull requests that would have added it —
+[#4900](https://github.com/LizardByte/Sunshine/pull/4900),
+[#4901](https://github.com/LizardByte/Sunshine/pull/4901),
+[#4078](https://github.com/LizardByte/Sunshine/pull/4078) — are all closed
+unmerged. So everyone solves it out of band. These are what people are already
+using, and where each one is the better choice.
+
+**[VBAN](https://vb-audio.com/Voicemeeter/vban.htm) — VoiceMeeter and VBAN
+Talkie.** VB-Audio's own network audio protocol, and the answer most often given
+in those threads. Free, mature, and if both machines are Windows it is hard to
+beat. The macOS sender is a separate paid App Store app, the routing lives in
+VoiceMeeter rather than in the thing sending the audio, and none of it is open
+source.
+
+**[AudioRelay](https://audiorelay.net/).** Free, closed source, cross-platform,
+aimed mainly at using a phone as a speaker or a microphone; it does the
+machine-to-machine case too. Easier to get running than VBAN. You cannot read
+what it does.
+
+**[EchoWarp](https://github.com/lHumaNl/EchoWarp).** The nearest neighbour — MIT,
+Go, actively maintained, and solving the same problem. If you want a small tool
+with no window, look at it first.
+
+**USB/IP.** Passes the interface through as a device, so the far machine sees a
+real Behringer with its own control panel and ASIO. It does not cross Tailscale
+or a routed subnet, and it needs a driver on the receiving side. `docs/design.md`
+has the longer version of why this project went the other way.
+
+Where micbridge is the better pick: macOS as a first-class *sender*, one binary
+in both directions on all three platforms, and a level meter plus a per-second
+line of buffer, drift, loss and underrun numbers — so "is it working" is
+something you read rather than guess. Where it is not: this is v1.0.1, the
+binaries are unsigned, and the [Unverified](#unverified) section below is a real
+list rather than a formality.
+
 ## Install
 
 Download from [Releases](https://github.com/dieterpl/micbridge/releases/latest).
@@ -76,12 +114,43 @@ in each release.
 Prefer the `.app` on macOS — the reason is under
 [Setup on the sending machine](#setup-on-the-sending-machine).
 
-**The binaries are not signed** — that needs a paid Apple Developer account and an
-EV certificate. macOS will refuse the first launch: right-click the app and choose
-Open, or run `xattr -dr com.apple.quarantine MicBridge.app`. Windows SmartScreen
-warns: More info → Run anyway.
-
 Or build it yourself — see [Build](#build).
+
+### macOS blocks the first launch
+
+`MicBridge.app` is signed, but only *ad-hoc* — a plain hash of the binary, with no
+certificate and no Apple ID behind it. Notarizing it properly needs a paid Apple
+Developer account. So Gatekeeper stops the first launch with one of:
+
+> Apple could not verify “MicBridge” is free of malware that may harm your Mac or
+> compromise your privacy.
+
+> “MicBridge” is damaged and can’t be opened. You should move it to the Trash.
+
+Neither is a finding about the app. Both are what macOS says about *any* download it
+cannot trace to a paid developer account, and the second one is simply wrong —
+nothing is damaged. Unzip the archive, then clear the quarantine flag your browser
+attached to it:
+
+```sh
+xattr -dr com.apple.quarantine ~/Downloads/MicBridge.app
+```
+
+It opens normally after that, and stays opened — the flag does not come back.
+
+Without a terminal: double-click the app, let it fail, then open **System Settings →
+Privacy & Security** and scroll down — an *Open Anyway* button is waiting there,
+naming MicBridge. It appears only after a refused launch, and only for about an hour.
+
+**Right-click → Open no longer works.** That was the standard advice for years, and
+Apple removed it in macOS 15 Sequoia; on Sequoia and Tahoe it gets you the same
+refusal as a double-click. Use one of the two routes above.
+
+Windows is milder: SmartScreen warns, and *More info → Run anyway* clears it.
+
+If you would rather not take any of this on faith, `SHA256SUMS` lets you confirm you
+have the bytes that were published, and [Build](#build) produces the same app from
+source in one command.
 
 ## Windows setup, and why it needs a virtual audio cable
 

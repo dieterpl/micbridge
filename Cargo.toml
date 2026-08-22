@@ -10,7 +10,7 @@ members = [
 ]
 
 [workspace.package]
-version = "1.0.0"
+version = "1.0.1"
 edition = "2021"
 license = "Apache-2.0"
 # Raised from 1.80 when the GUI arrived: eframe sets the floor now.

@@ -168,6 +168,22 @@ mod tests {
         }
     }
 
+    /// `App::clear_color` hands eframe `panel_fill` for the active theme, because
+    /// eframe's own default ignores the visuals and clears to a hardcoded
+    /// `rgba(12, 12, 12, 180)`. Nothing else paints the window background, so this is
+    /// the whole of it — and the bug it replaced was invisible in the dark theme,
+    /// where that hardcoded colour happened to sit a few points from `bg`.
+    #[test]
+    fn install_leaves_an_opaque_background_in_panel_fill() {
+        let ctx = egui::Context::default();
+        install(&ctx);
+        for theme in [egui::Theme::Dark, egui::Theme::Light] {
+            let fill = ctx.style_of(theme).visuals.panel_fill;
+            assert_eq!(fill, Palette::for_theme(theme).bg, "{theme:?}: not the palette's bg");
+            assert_eq!(fill.a(), 255, "{theme:?}: a see-through window shows the desktop");
+        }
+    }
+
     /// A light theme built by inverting a dark one produces unreadable mid-tones.
     /// This pins that both were designed, by checking text actually contrasts with
     /// the surface it sits on.

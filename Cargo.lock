@@ -2049,7 +2049,7 @@ dependencies = [
 
 [[package]]
 name = "micbridge"
-version = "1.0.0"
+version = "1.0.1"
 dependencies = [
  "anyhow",
  "clap",
@@ -2064,7 +2064,7 @@ dependencies = [
 
 [[package]]
 name = "micbridge-audio"
-version = "1.0.0"
+version = "1.0.1"
 dependencies = [
  "anyhow",
  "cpal",
@@ -2077,7 +2077,7 @@ dependencies = [
 
 [[package]]
 name = "micbridge-core"
-version = "1.0.0"
+version = "1.0.1"
 dependencies = [
  "micbridge-protocol",
  "ringbuf",
@@ -2086,7 +2086,7 @@ dependencies = [
 
 [[package]]
 name = "micbridge-engine"
-version = "1.0.0"
+version = "1.0.1"
 dependencies = [
  "anyhow",
  "if-addrs",
@@ -2099,7 +2099,7 @@ dependencies = [
 
 [[package]]
 name = "micbridge-gui"
-version = "1.0.0"
+version = "1.0.1"
 dependencies = [
  "anyhow",
  "eframe",
@@ -2115,7 +2115,7 @@ dependencies = [
 
 [[package]]
 name = "micbridge-protocol"
-version = "1.0.0"
+version = "1.0.1"
 dependencies = [
  "insta",
  "rmp-serde",

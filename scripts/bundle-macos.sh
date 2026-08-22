@@ -78,5 +78,8 @@ echo "built $APP"
 du -sh "$APP" | awk '{print "  " $1}'
 echo
 echo "Run it:            open $APP"
-echo "First launch:      right-click -> Open (it is not notarized)"
-echo "If quarantined:    xattr -dr com.apple.quarantine $APP"
+# Not "right-click -> Open": macOS 15 removed that bypass, and on 15 and later it
+# fails exactly like a double-click. Clearing the quarantine flag still works, and
+# a locally built app has no such flag in the first place.
+echo "First launch:      xattr -dr com.apple.quarantine $APP   (it is not notarized)"
+echo "Or:                System Settings -> Privacy & Security -> Open Anyway"
